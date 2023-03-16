@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:band_name_app/services/socket_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -72,15 +73,25 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Column(
-        children: <Widget>[
-          _showGraph(),
+        children: [
           Expanded(
-            child: ListView.builder(
+            flex: 3,
+            child: _showGraph(),
+          ),
+          Expanded(
+            flex: 5,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              child: ListView.builder(
                 itemCount: bands.length,
-                itemBuilder: (context, index) => _bandTile(bands[index])),
+                itemBuilder: (context, index) => _bandTile(bands[index]),
+              ),
+            ),
           ),
         ],
       ),
+
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         elevation: 1,
@@ -97,7 +108,7 @@ class _HomePageState extends State<HomePage> {
       onDismissed: (_) =>
           socketService.socket.emit('delete-band', {'id': band.id}),
       background: Container(
-        padding: EdgeInsets.only(left: 12.0),
+        padding: EdgeInsets.only(left: 12.0, bottom: 12.0),
         color: Colors.red,
         child: Align(
             alignment: Alignment.centerLeft,
@@ -184,6 +195,10 @@ class _HomePageState extends State<HomePage> {
       dataMap.putIfAbsent(band.name, () => band.votes.toDouble());
     });
 
+    if(dataMap.isEmpty){
+      dataMap.putIfAbsent("", () => 0);
+    }
+
     final List<Color> colorList = [
       Colors.blue[50]!,
       Colors.blue[200]!,
@@ -196,7 +211,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
         padding: EdgeInsets.only(top: 10),
         width: double.infinity,
-        height: 200,
+        height: double.infinity,
         child: PieChart(
           dataMap: dataMap,
           animationDuration: Duration(milliseconds: 800),
